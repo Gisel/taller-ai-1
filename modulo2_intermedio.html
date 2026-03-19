@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 2: Nivel Intermedio — Domina la IA en 3 Niveles</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --surface3: #22222e;
+    --gold: #FFD700;
+    --gold-dim: #b8981a;
+    --coral: #FF6B6B;
+    --teal: #4ECDC4;
+    --purple: #A78BFA;
+    --blue: #60A5FA;
+    --green: #34D399;
+    --orange: #F59E0B;
+    --pink: #EC4899;
+    --text: #E8E8F0;
+    --text-dim: #8888A0;
+    --text-dimmer: #555568;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== NAVIGATION ===== */
+  .nav {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; z-index: 100;
+    background: rgba(18,18,26,0.97); padding: 6px 12px;
+    border-radius: 50px; border: 1px solid rgba(255,215,0,0.15);
+    backdrop-filter: blur(20px); max-width: 95vw;
+  }
+  .nav button {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid transparent; background: var(--surface2);
+    color: var(--text-dim); font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600; font-size: 12px; cursor: pointer;
+    transition: all 0.3s; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+  }
+  .nav button.active {
+    border-color: var(--orange); color: var(--orange);
+    background: rgba(245,158,11,0.1);
+    box-shadow: 0 0 15px rgba(245,158,11,0.15);
+  }
+  .nav button:hover:not(.active) { border-color: rgba(245,158,11,0.3); color: var(--text); }
+  .nav .sep {
+    width: 1px; height: 24px; background: rgba(255,255,255,0.08);
+    align-self: center; flex-shrink: 0; margin: 0 3px;
+  }
+
+  /* ===== SLIDES ===== */
+  .slide {
+    min-height: 100vh; display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 24px 90px; animation: fadeIn 0.45s ease;
+  }
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .slide-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 3px;
+    color: var(--orange); margin-bottom: 12px; opacity: 0.7;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(26px, 5vw, 46px); font-weight: 700;
+    text-align: center; line-height: 1.15; margin-bottom: 16px;
+  }
+  h1 .highlight { color: var(--gold); }
+  h1 .hl-orange { color: var(--orange); }
+  h1 .hl-teal { color: var(--teal); }
+
+  .subtitle {
+    color: var(--text-dim); font-size: clamp(14px, 2.5vw, 18px);
+    text-align: center; max-width: 620px; line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  .insight-box {
+    background: rgba(245,158,11,0.05); border-left: 3px solid var(--orange);
+    padding: 16px 20px; border-radius: 0 12px 12px 0;
+    max-width: 700px; width: 100%; font-size: 15px;
+    line-height: 1.6; color: var(--text-dim); margin-top: 8px;
+  }
+  .insight-box strong { color: var(--orange); }
+  .insight-box .gold { color: var(--gold); }
+
+  /* ===== VIDEO PLACEHOLDER ===== */
+  .video-placeholder {
+    max-width: 700px; width: 100%; aspect-ratio: 16/9;
+    background: var(--surface); border: 2px dashed rgba(245,158,11,0.2);
+    border-radius: var(--radius); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    margin: 20px 0; position: relative; overflow: hidden;
+    cursor: default; transition: border-color 0.3s;
+  }
+  .video-placeholder:hover { border-color: rgba(245,158,11,0.4); }
+  .video-placeholder .play-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(245,158,11,0.1); border: 2px solid rgba(245,158,11,0.3);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+  }
+  .video-placeholder:hover .play-icon {
+    background: rgba(245,158,11,0.15); border-color: var(--orange);
+    transform: scale(1.05);
+  }
+  .play-icon svg { width: 24px; height: 24px; fill: var(--orange); margin-left: 3px; }
+  .video-placeholder .vp-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--text-dimmer); text-transform: uppercase; letter-spacing: 2px;
+  }
+  .video-placeholder .vp-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px;
+    color: var(--text-dim); text-align: center; max-width: 80%;
+  }
+
+  /* small video placeholder variant */
+  .video-placeholder.compact {
+    aspect-ratio: 16/8; max-width: 600px;
+  }
+  .video-placeholder.compact .play-icon { width: 48px; height: 48px; }
+  .video-placeholder.compact .play-icon svg { width: 18px; height: 18px; }
+
+  /* ===== COMPARISON FLOW ===== */
+  .flow-compare {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; max-width: 720px; width: 100%; margin-bottom: 24px;
+  }
+  @media (max-width: 650px) { .flow-compare { grid-template-columns: 1fr; } }
+
+  .flow-panel {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 24px; border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+  }
+  .flow-panel.old { border-top: 3px solid var(--text-dimmer); }
+  .flow-panel.new { border-top: 3px solid var(--orange); }
+
+  .flow-panel .flow-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px;
+  }
+  .flow-panel.old .flow-tag { color: var(--text-dimmer); }
+  .flow-panel.new .flow-tag { color: var(--orange); }
+
+  .flow-panel h3 {
+    font-family: 'Space Grotesk', sans-serif; font-size: 18px;
+    font-weight: 600; margin-bottom: 16px;
+  }
+
+  .flow-step {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; font-size: 14px;
+  }
+  .flow-step .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    font-weight: 600; flex-shrink: 0;
+  }
+  .flow-panel.old .step-num { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+  .flow-panel.new .step-num { background: rgba(245,158,11,0.15); color: var(--orange); }
+
+  .flow-step .step-who {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px; padding: 2px 6px;
+    border-radius: 4px; flex-shrink: 0;
+  }
+  .who-tu { background: rgba(255,107,107,0.1); color: var(--coral); }
+  .who-ia { background: rgba(78,205,196,0.1); color: var(--teal); }
+
+  .flow-bottom {
+    margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 13px; font-weight: 600;
+  }
+  .flow-panel.old .flow-bottom { color: var(--text-dim); }
+  .flow-panel.new .flow-bottom { color: var(--orange); }
+
+  /* ===== AGENT TYPES ===== */
+  .agent-types {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; max-width: 720px; width: 100%; margin-bottom: 16px;
+  }
+  @media (max-width: 650px) { .agent-types { grid-template-columns: 1fr; } }
+
+  .agent-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 24px; border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .agent-card:hover { transform: translateY(-3px); }
+  .agent-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 3px;
+  }
+  .agent-card.work::before { background: var(--orange); }
+  .agent-card.personal::before { background: var(--purple); }
+  .agent-card.work:hover { border-color: rgba(245,158,11,0.3); }
+  .agent-card.personal:hover { border-color: rgba(167,139,250,0.3); }
+
+  .agent-card .agent-emoji { font-size: 32px; margin-bottom: 12px; }
+  .agent-card .agent-type-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+  }
+  .agent-card.work .agent-type-label { color: var(--orange); }
+  .agent-card.personal .agent-type-label { color: var(--purple); }
+
+  .agent-card .agent-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 20px;
+    font-weight: 600; margin-bottom: 8px;
+  }
+  .agent-card .agent-desc {
+    font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px;
+  }
+
+  .agent-examples {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .agent-example {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-dim);
+    padding: 6px 10px; background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+  }
+  .agent-example .ae-name {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+    color: var(--text);
+  }
+
+  .agent-stat {
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  }
+  .agent-card.work .agent-stat { color: var(--orange); }
+  .agent-card.personal .agent-stat { color: var(--purple); }
+
+  /* ===== VIDEO PAIR (side by side labels) ===== */
+  .video-pair {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; max-width: 720px; width: 100%; margin: 16px 0;
+  }
+  @media (max-width: 650px) { .video-pair { grid-template-columns: 1fr; } }
+  .video-pair .video-placeholder { max-width: 100%; margin: 0; aspect-ratio: 16/10; }
+
+  /* ===== TOKENS VISUAL ===== */
+  .token-visual {
+    max-width: 700px; width: 100%; margin-bottom: 24px;
+  }
+
+  .token-analogy {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+  }
+  .token-analogy .ta-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 16px;
+    font-weight: 600; margin-bottom: 12px;
+  }
+  .token-demo {
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px; flex-wrap: wrap; margin: 16px 0;
+  }
+  .token-chip {
+    padding: 6px 12px; border-radius: 8px; font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 500; border: 1px solid;
+    transition: all 0.3s;
+  }
+  .token-chip:nth-child(odd) { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); color: var(--orange); }
+  .token-chip:nth-child(even) { background: rgba(78,205,196,0.1); border-color: rgba(78,205,196,0.2); color: var(--teal); }
+
+  .token-equation {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--text-dim); margin-top: 12px;
+  }
+  .token-equation strong { color: var(--text); }
+
+  /* ===== PRICING TABLE ===== */
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; width: 100%; margin-bottom: 16px;
+  }
+  @media (max-width: 700px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .price-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 20px; text-align: center;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.3s; position: relative;
+  }
+  .price-card:hover { transform: translateY(-2px); }
+  .price-card.recommended {
+    border-color: rgba(245,158,11,0.3);
+    background: rgba(245,158,11,0.03);
+  }
+  .price-card .rec-badge {
+    display: none; position: absolute; top: -10px; left: 50%;
+    transform: translateX(-50%); font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 50px;
+    background: var(--orange); color: var(--bg);
+  }
+  .price-card.recommended .rec-badge { display: block; }
+
+  .price-tier {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--text-dim); margin-bottom: 8px;
+  }
+  .price-amount {
+    font-family: 'Space Grotesk', sans-serif; font-size: 28px;
+    font-weight: 700; margin-bottom: 4px;
+  }
+  .price-card:nth-child(1) .price-amount { color: var(--green); }
+  .price-card:nth-child(2) .price-amount { color: var(--orange); }
+  .price-card:nth-child(3) .price-amount { color: var(--coral); }
+  .price-card:nth-child(4) .price-amount { color: var(--purple); }
+
+  .price-period {
+    font-size: 12px; color: var(--text-dimmer); margin-bottom: 12px;
+  }
+  .price-features {
+    text-align: left; font-size: 12px; color: var(--text-dim);
+    line-height: 1.8;
+  }
+  .price-features .pf-item {
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .price-features .pf-check { color: var(--green); flex-shrink: 0; font-size: 13px; }
+
+  .notebook-callout {
+    max-width: 700px; width: 100%;
+    background: rgba(96,165,250,0.05); border: 1px solid rgba(96,165,250,0.15);
+    border-radius: 12px; padding: 16px 20px; margin-top: 8px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 14px; color: var(--text-dim); line-height: 1.5;
+  }
+  .notebook-callout .nb-icon { font-size: 28px; flex-shrink: 0; }
+  .notebook-callout strong { color: var(--blue); }
+
+  /* ===== EXERCISE TABLE ===== */
+  .exercise-box {
+    background: var(--surface); border: 2px solid rgba(245,158,11,0.15);
+    border-radius: var(--radius); padding: 28px;
+    max-width: 720px; width: 100%; margin-bottom: 16px;
+  }
+  .exercise-box h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px; text-align: left; margin-bottom: 6px;
+  }
+  .exercise-box .ex-desc {
+    font-size: 14px; color: var(--text-dim); margin-bottom: 18px; line-height: 1.5;
+  }
+
+  .diag-table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 13px;
+  }
+  .diag-table thead th {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--orange); padding: 10px 8px;
+    border-bottom: 2px solid rgba(245,158,11,0.2);
+    text-align: center; white-space: nowrap;
+  }
+  .diag-table thead th:first-child { text-align: left; width: 40%; }
+
+  .diag-table tbody tr { transition: background 0.2s; }
+  .diag-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  .diag-table tbody td {
+    padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle; text-align: center;
+  }
+  .diag-table tbody td:first-child { text-align: left; color: var(--text-dim); }
+
+  .diag-table tbody td input[type="text"] {
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 8px 10px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    width: 100%; transition: border-color 0.3s;
+  }
+  .diag-table tbody td input[type="text"]:focus {
+    outline: none; border-color: rgba(245,158,11,0.4);
+  }
+  .diag-table tbody td input[type="text"]::placeholder { color: var(--text-dimmer); }
+
+  /* Custom checkbox */
+  .check-cell { cursor: pointer; }
+  .custom-check {
+    width: 28px; height: 28px; border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.3s; font-size: 14px;
+    user-select: none;
+  }
+  .custom-check:hover { border-color: rgba(245,158,11,0.3); }
+  .custom-check.checked {
+    border-color: var(--orange); background: rgba(245,158,11,0.15);
+  }
+
+  .diag-result {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    justify-content: center; min-width: 70px;
+  }
+  .diag-result .dr-badge {
+    padding: 3px 8px; border-radius: 50px;
+    text-transform: uppercase; letter-spacing: 1px;
+    font-size: 9px; font-weight: 600;
+  }
+  .dr-yes { background: rgba(52,211,153,0.15); color: var(--green); }
+  .dr-maybe { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .dr-no { background: rgba(255,255,255,0.05); color: var(--text-dimmer); }
+
+  /* ===== KEY HINT ===== */
+  .key-hint {
+    position: fixed; top: 16px; right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-dimmer); z-index: 100; opacity: 0.4;
+  }
+
+  /* ===== GRAIN ===== */
+  body::after {
+    content: ''; position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%; pointer-events: none; opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    z-index: 9999;
+  }
+  /* ===== MODULE NAV ===== */
+  .module-nav {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; z-index: 100;
+    background: rgba(18,18,26,0.95); padding: 4px 8px;
+    border-radius: 50px; border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+  }
+  .module-nav a {
+    padding: 6px 12px; border-radius: 50px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+    text-decoration: none; color: var(--text-dimmer);
+    transition: all 0.3s;
+  }
+  .module-nav a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .module-nav a.current { color: var(--gold); background: rgba(255,215,0,0.08); }
+
+</style>
+</head>
+<body>
+
+<nav class="module-nav">
+  <a href="modulo1_basico.html">Básico</a>
+  <a href="modulo2_intermedio.html" class="current">Intermedio</a>
+  <a href="modulo3_avanzado.html">Avanzado</a>
+  <a href="cierre.html">Cierre</a>
+</nav>
+
+<div class="key-hint">← → para navegar</div>
+
+<nav class="nav" id="main-nav"></nav>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- S1: DE ASISTENTE A AGENTE                                      -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="slide active" id="s1">
+  <div class="slide-label">Nivel Intermedio • El salto</div>
+  <h1>De <span class="hl-teal">Asistente</span><br>a <span class="hl-orange">Agente</span></h1>
+  <p class="subtitle">En el Nivel Básico le dices qué escribir. En el Intermedio le dices qué lograr — y la IA planea, ejecuta y te entrega el resultado.</p>
+
+  <div class="flow-compare">
+    <div class="flow-panel old">
+      <div class="flow-tag">Nivel 1 · Chat</div>
+      <h3>Asistente</h3>
+      <div class="flow-step"><span class="step-num">1</span><span class="step-who who-tu">Tú</span> Escribes el prompt</div>
+      <div class="flow-step"><span class="step-num">2</span><span class="step-who who-ia">IA</span> Responde texto</div>
+      <div class="flow-step"><span class="step-num">3</span><span class="step-who who-tu">Tú</span> Copias y pegas</div>
+      <div class="flow-step"><span class="step-num">4</span><span class="step-who who-tu">Tú</span> Ejecutas en otra app</div>
+      <div class="flow-step"><span class="step-num">5</span><span class="step-who who-tu">Tú</span> Repites para cada tarea</div>
+      <div class="flow-bottom">⏱️ Tú haces el 80% del trabajo</div>
+    </div>
+    <div class="flow-panel new">
+      <div class="flow-tag">Nivel 2 · Agente</div>
+      <h3>Agente</h3>
+      <div class="flow-step"><span class="step-num">1</span><span class="step-who who-tu">Tú</span> Defines la meta</div>
+      <div class="flow-step"><span class="step-num">2</span><span class="step-who who-ia">IA</span> Crea un plan</div>
+      <div class="flow-step"><span class="step-num">3</span><span class="step-who who-ia">IA</span> Accede a tus archivos/apps</div>
+      <div class="flow-step"><span class="step-num">4</span><span class="step-who who-ia">IA</span> Ejecuta paso a paso</div>
+      <div class="flow-step"><span class="step-num">5</span><span class="step-who who-ia">IA</span> Te entrega resultado final</div>
+      <div class="flow-bottom">⚡ La IA hace el 80% del trabajo</div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    💡 <strong>La analogía:</strong> Un asistente te contesta preguntas. Un agente te resuelve proyectos. Es como la diferencia entre preguntarle a alguien "¿qué hora es?" y decirle <strong>"organízame la agenda de mañana."</strong>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- S2: LOS 2 TIPOS DE AGENTES                                    -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="slide-label">Nivel Intermedio • El mapa</div>
+  <h1>Los <span class="highlight">2 tipos</span> de<br>agentes que existen</h1>
+  <p class="subtitle">No todos los agentes son iguales. Unos trabajan, otros te acompañan. Y todos acaban de llegar esta semana.</p>
+
+  <div class="agent-types">
+    <div class="agent-card work">
+      <div class="agent-emoji">🏢</div>
+      <div class="agent-type-label">Tipo 1</div>
+      <div class="agent-title">Agentes de Trabajo</div>
+      <div class="agent-desc">Le das acceso a tus archivos y herramientas. Tú defines la meta. El agente planea, ejecuta y te entrega resultados listos.</div>
+      <div class="agent-examples">
+        <div class="agent-example"><span class="ae-name">Claude Cowork</span> — archivos, Google Drive, Gmail, plugins por área</div>
+        <div class="agent-example"><span class="ae-name">ChatGPT Agent</span> — browser, terminal, conectores, docs editables</div>
+        <div class="agent-example"><span class="ae-name">Perplexity Computer</span> — multi-modelo, investigación autónoma</div>
+        <div class="agent-example"><span class="ae-name">Gemini + NotebookLM</span> — ecosistema Google, 1M tokens contexto</div>
+      </div>
+      <div class="agent-stat">📅 Todos actualizados esta semana (feb 2026)</div>
+    </div>
+    <div class="agent-card personal">
+      <div class="agent-emoji">🧑</div>
+      <div class="agent-type-label">Tipo 2</div>
+      <div class="agent-title">Agentes Personales</div>
+      <div class="agent-desc">Un compañero con voz natural, memoria y personalidad propia. Te conoce, se adapta, y conversa como un humano.</div>
+      <div class="agent-examples">
+        <div class="agent-example"><span class="ae-name">Sesame (Miles/Maya)</span> — voces expresivas, inteligencia emocional</div>
+        <div class="agent-example"><span class="ae-name">ChatGPT Voice</span> — voz avanzada, detecta tu tono</div>
+        <div class="agent-example"><span class="ae-name">Gemini Live</span> — conversación libre, interrupciones naturales</div>
+      </div>
+      <div class="agent-stat">📊 Sesame: 1M+ usuarios, 5M+ minutos en semanas. Pronto: lentes con IA.</div>
+    </div>
+  </div>
+
+  <!-- 🎬 VIDEO EMBEDS — AGENTE DE TRABAJO + AGENTE PERSONAL -->
+  <div class="video-pair">
+    <!-- Demo: Problema real de Kalli -->
+    <iframe
+      id="video-agente-trabajo"
+      src="https://player.mux.com/Za6Qwpd1Yugm8GxkdDF00u024ohLZRZeO014KZINDHQqwg"
+      style="width: 100%; border: none; aspect-ratio: 160/97; border-radius: 16px;"
+      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+      allowfullscreen
+    ></iframe>
+
+    <!-- Demo: Miles (Sesame) -->
+    <iframe
+      id="video-agente-personal"
+      src="https://player.mux.com/9aHp4YIuydb9s9mrJqaQ00lKuE7WRbNhZEOWzt6gZzzI"
+      style="width: 100%; border: none; aspect-ratio: 16/9; border-radius: 16px;"
+      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+      allowfullscreen
+    ></iframe>
+  </div>
+
+  <div class="insight-box">
+    💡 <strong>Esta semana cambiaron las reglas.</strong> Claude lanzó Cowork con conectores empresariales. ChatGPT unificó su agente. Gemini actualizó a 3.1 Pro. Y ayer, Perplexity lanzó Computer. La carrera de los agentes ya no es futuro — <strong>es esta semana.</strong>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- S3: TOKENS + COSTOS                                            -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s3">
+  <div class="slide-label">Nivel Intermedio • La realidad</div>
+  <h1>¿Cuánto <span class="highlight">cuesta</span><br>realmente usar IA?</h1>
+  <p class="subtitle">Primero: ¿qué son los tokens? Segundo: ¿cuánto pagas? Spoiler: menos de lo que piensas.</p>
+
+  <div class="token-visual">
+    <div class="token-analogy">
+      <div class="ta-title">Los tokens son como los datos de tu plan de celular 📱</div>
+      <p style="font-size:14px; color:var(--text-dim); margin-bottom:14px;">Cada mensaje que envías y recibes consume tokens. Más largo o complejo el mensaje = más tokens.</p>
+      <div class="token-demo">
+        <span class="token-chip">El</span>
+        <span class="token-chip">café</span>
+        <span class="token-chip">de</span>
+        <span class="token-chip">Oax</span>
+        <span class="token-chip">aca</span>
+        <span class="token-chip">es</span>
+        <span class="token-chip">delic</span>
+        <span class="token-chip">ioso</span>
+      </div>
+      <div class="token-equation">
+        "El café de Oaxaca es delicioso" = <strong>~8 tokens</strong><br>
+        1 página de texto ≈ 500 tokens &nbsp;·&nbsp; 1 imagen ≈ 1,000+ tokens
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="rec-badge">Empezar aquí</div>
+        <div class="price-tier">Gratis</div>
+        <div class="price-amount">$0</div>
+        <div class="price-period">para siempre</div>
+        <div class="price-features">
+          <div class="pf-item"><span class="pf-check">✓</span> ChatGPT, Claude, Gemini, Perplexity</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Chat, archivos, imágenes básicas</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Límites diarios generosos</div>
+          <div class="pf-item"><span class="pf-check">✓</span> El 80% de lo que necesitas</div>
+        </div>
+      </div>
+      <div class="price-card recommended">
+        <div class="rec-badge">Más popular</div>
+        <div class="price-tier">Pro</div>
+        <div class="price-amount">~$20</div>
+        <div class="price-period">USD / mes</div>
+        <div class="price-features">
+          <div class="pf-item"><span class="pf-check">✓</span> Modelos más inteligentes</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Más mensajes y tokens</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Agentes básicos</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Acceso prioritario</div>
+        </div>
+      </div>
+      <div class="price-card">
+        <div class="rec-badge"></div>
+        <div class="price-tier">Max</div>
+        <div class="price-amount">~$100</div>
+        <div class="price-period">USD / mes</div>
+        <div class="price-features">
+          <div class="pf-item"><span class="pf-check">✓</span> Agentes completos</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Cowork, Computer, etc.</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Contexto masivo (1M tokens)</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Para uso profesional intenso</div>
+        </div>
+      </div>
+      <div class="price-card">
+        <div class="rec-badge"></div>
+        <div class="price-tier">Enterprise</div>
+        <div class="price-amount">Negocia</div>
+        <div class="price-period">por equipo</div>
+        <div class="price-features">
+          <div class="pf-item"><span class="pf-check">✓</span> Plugins personalizados</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Conectores (Drive, CRM...)</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Control admin y seguridad</div>
+          <div class="pf-item"><span class="pf-check">✓</span> Equipos ilimitados</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notebook-callout">
+    <span class="nb-icon">📓</span>
+    <div>
+      <strong>Game changer gratis: NotebookLM</strong> de Google. Sube PDFs, artículos, notas — y tiene 1M de tokens de contexto. Ideal para investigar, estudiar o preparar presentaciones. Incluso genera podcasts de tu contenido. <span style="font-family:'JetBrains Mono',monospace;font-size:12px;">notebooklm.google.com</span>
+    </div>
+  </div>
+
+  <div class="insight-box" style="margin-top:16px">
+    💡 <strong>¿Por qué los agentes cuestan más?</strong> Porque cada paso que ejecutan consume tokens. Un chat simple = 1 ida y vuelta. Un agente que investiga, escribe y revisa = 20+ idas y vueltas internos. Más pasos = más tokens = más costo. <strong>Tip: empieza gratis, sube solo cuando lo necesites.</strong>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- S4: EJERCICIO #2 — DIAGNÓSTICO DE AUTOMATIZACIÓN              -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s4">
+  <div class="slide-label">Nivel Intermedio • Ejercicio #2</div>
+  <h1>Diagnóstico de<br><span class="hl-orange">Automatización</span></h1>
+  <p class="subtitle">Identifica qué tareas de tu día a día son candidatas perfectas para un agente de IA.</p>
+
+  <!-- 🎬 VIDEO EMBED PLACEHOLDER — DEMO EJERCICIO -->
+  <iframe
+    src="https://player.mux.com/1JIboREKGFmsWrpO85eADnpKxfcBGPbjBZx02R7nTAsE"
+    style="width: 50%; border: none; aspect-ratio: 16/9; border-radius: 16px; margin-bottom: 30px;
+    display: block; margin-left: auto; margin-right: auto;"
+    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+    allowfullscreen
+  ></iframe>
+
+  <div class="exercise-box">
+    <h2>🔍 Tu diagnóstico:</h2>
+    <p class="ex-desc">Piensa en 3 tareas que haces cada semana. Escríbelas y marca las que apliquen. Si marcas las 3 columnas → es candidata perfecta para un agente.</p>
+
+    <table class="diag-table">
+      <thead>
+        <tr>
+          <th>Tarea que hago seguido</th>
+          <th>¿Repetitiva?</th>
+          <th>¿Pasos claros?</th>
+          <th>¿Usa apps/digital?</th>
+          <th>Veredicto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="text" placeholder="Ej: Responder emails de proveedores" id="task1"></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="1" data-col="1"></div></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="1" data-col="2"></div></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="1" data-col="3"></div></td>
+          <td><div class="diag-result" id="verdict-1"><span class="dr-badge dr-no">—</span></div></td>
+        </tr>
+        <tr>
+          <td><input type="text" placeholder="Ej: Publicar en redes sociales" id="task2"></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="2" data-col="1"></div></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="2" data-col="2"></div></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="2" data-col="3"></div></td>
+          <td><div class="diag-result" id="verdict-2"><span class="dr-badge dr-no">—</span></div></td>
+        </tr>
+        <tr>
+          <td><input type="text" placeholder="Ej: Hacer reportes de ventas" id="task3"></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="3" data-col="1"></div></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="3" data-col="2"></div></td>
+          <td class="check-cell"><div class="custom-check" onclick="toggleCheck(this)" data-row="3" data-col="3"></div></td>
+          <td><div class="diag-result" id="verdict-3"><span class="dr-badge dr-no">—</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight-box">
+    ⏱️ <strong>10 minutos</strong> &nbsp;|&nbsp;
+    Si marcaste las 3 columnas en alguna tarea: <strong>esa tarea ya se puede automatizar hoy</strong> con un agente como Cowork, ChatGPT Agent o Perplexity Computer.<br><br>
+    🎯 <strong>El siguiente paso:</strong> En el Nivel Avanzado verás cómo construir tus propios agentes y conectarlos a tus sistemas.
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                                     -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<script>
+  const TOTAL = 4;
+  let current = 1;
+
+  // Build nav
+  const nav = document.getElementById('main-nav');
+  for (let i = 1; i <= TOTAL; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.onclick = () => goSlide(i);
+    if (i === 1) btn.classList.add('active');
+    nav.appendChild(btn);
+  }
+
+  function goSlide(n) {
+    if (n < 1 || n > TOTAL) return;
+    current = n;
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('s' + n).classList.add('active');
+    document.querySelectorAll('.nav button')[n - 1].classList.add('active');
+  }
+
+  // Keyboard nav
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return; // don't hijack typing
+    if (e.key === 'ArrowRight' || (e.key === ' ' && !e.shiftKey)) { e.preventDefault(); goSlide(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goSlide(current - 1); }
+  });
+
+  // ===== DIAGNOSTIC TABLE =====
+  const checks = {};
+
+  function toggleCheck(el) {
+    const row = el.dataset.row;
+    const col = el.dataset.col;
+    const key = row + '-' + col;
+    const isChecked = !checks[key];
+    checks[key] = isChecked;
+
+    if (isChecked) {
+      el.classList.add('checked');
+      el.textContent = '✓';
+    } else {
+      el.classList.remove('checked');
+      el.textContent = '';
+    }
+
+    updateVerdict(row);
+  }
+
+  function updateVerdict(row) {
+    const count = [1, 2, 3].filter(c => checks[row + '-' + c]).length;
+    const verdict = document.getElementById('verdict-' + row);
+
+    if (count === 3) {
+      verdict.innerHTML = '<span class="dr-badge dr-yes">🤖 Automatiza</span>';
+    } else if (count >= 1) {
+      verdict.innerHTML = '<span class="dr-badge dr-maybe">🤔 Parcial</span>';
+    } else {
+      verdict.innerHTML = '<span class="dr-badge dr-no">—</span>';
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cierre — Domina la IA en 3 Niveles</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --surface3: #22222e;
+    --gold: #FFD700;
+    --gold-dim: #b8981a;
+    --coral: #FF6B6B;
+    --teal: #4ECDC4;
+    --purple: #A78BFA;
+    --blue: #60A5FA;
+    --green: #34D399;
+    --orange: #F59E0B;
+    --pink: #EC4899;
+    --text: #E8E8F0;
+    --text-dim: #8888A0;
+    --text-dimmer: #555568;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== NAVIGATION ===== */
+  .nav {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; z-index: 100;
+    background: rgba(18,18,26,0.97); padding: 6px 12px;
+    border-radius: 50px; border: 1px solid rgba(255,215,0,0.15);
+    backdrop-filter: blur(20px); max-width: 95vw;
+  }
+  .nav button {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid transparent; background: var(--surface2);
+    color: var(--text-dim); font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600; font-size: 12px; cursor: pointer;
+    transition: all 0.3s; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+  }
+  .nav button.active {
+    border-color: var(--gold); color: var(--gold);
+    background: rgba(255,215,0,0.1);
+    box-shadow: 0 0 15px rgba(255,215,0,0.15);
+  }
+  .nav button:hover:not(.active) { border-color: rgba(255,215,0,0.3); color: var(--text); }
+
+  /* ===== SLIDES ===== */
+  .slide {
+    min-height: 100vh; display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 24px 90px; animation: fadeIn 0.45s ease;
+  }
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .slide-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 3px;
+    color: var(--gold); margin-bottom: 12px; opacity: 0.7;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(26px, 5vw, 46px); font-weight: 700;
+    text-align: center; line-height: 1.15; margin-bottom: 16px;
+  }
+  h1 .highlight { color: var(--gold); }
+
+  .subtitle {
+    color: var(--text-dim); font-size: clamp(14px, 2.5vw, 18px);
+    text-align: center; max-width: 620px; line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  /* ===== S1: CLOSING QUOTES ===== */
+  .quote-section {
+    max-width: 650px; width: 100%; margin-bottom: 32px;
+  }
+  .big-quote {
+    text-align: center; padding: 36px 28px;
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid rgba(255,215,0,0.1);
+    margin-bottom: 20px;
+    position: relative; overflow: hidden;
+  }
+  .big-quote::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--orange), var(--coral));
+  }
+  .big-quote .bq-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-weight: 600; line-height: 1.4;
+    color: var(--text);
+  }
+  .big-quote .bq-text .hl-gold { color: var(--gold); }
+  .big-quote .bq-text .hl-coral { color: var(--coral); }
+
+  .second-quote {
+    text-align: center; padding: 20px 24px;
+    background: rgba(255,215,0,0.03); border-radius: 12px;
+    border: 1px solid rgba(255,215,0,0.08);
+  }
+  .second-quote .sq-text {
+    font-family: 'DM Sans', sans-serif; font-style: italic;
+    font-size: clamp(16px, 2.5vw, 20px); color: var(--text-dim); line-height: 1.5;
+  }
+  .second-quote .sq-text strong { color: var(--gold); font-style: normal; }
+
+  /* Decorative line */
+  .divider-glow {
+    width: 120px; height: 2px; margin: 0 auto 20px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    border-radius: 2px;
+  }
+
+  /* ===== S2: ACHIEVEMENTS ===== */
+  .achievements-box {
+    max-width: 600px; width: 100%; margin-bottom: 28px;
+  }
+  .achievement-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 16px; margin-bottom: 8px;
+    background: var(--surface); border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.04);
+    opacity: 0; transform: translateX(-16px);
+    transition: all 0.4s ease;
+  }
+  .achievement-item.visible { opacity: 1; transform: translateX(0); }
+
+  .achievement-item .ai-check {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 14px; font-weight: 700;
+    transition: all 0.3s;
+  }
+  .achievement-item:nth-child(1) .ai-check { background: rgba(78,205,196,0.15); color: var(--teal); }
+  .achievement-item:nth-child(2) .ai-check { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .achievement-item:nth-child(3) .ai-check { background: rgba(255,107,107,0.15); color: var(--coral); }
+  .achievement-item:nth-child(4) .ai-check { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .achievement-item:nth-child(5) .ai-check { background: rgba(255,215,0,0.15); color: var(--gold); }
+
+  .achievement-item .ai-text {
+    font-size: 15px; line-height: 1.5; color: var(--text-dim);
+  }
+  .achievement-item .ai-text strong { color: var(--text); }
+
+  .time-badge {
+    text-align: center; margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--text-dimmer); text-transform: uppercase; letter-spacing: 2px;
+  }
+  .time-badge .tb-big {
+    font-family: 'Space Grotesk', sans-serif; font-size: 28px;
+    font-weight: 700; color: var(--gold); display: block; margin-bottom: 2px;
+    letter-spacing: 0;
+  }
+
+  /* ===== S3: KIT DE ARRANQUE ===== */
+  .kit-hero {
+    max-width: 650px; width: 100%; margin-bottom: 24px;
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid rgba(255,215,0,0.12);
+    padding: 28px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .kit-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--orange), var(--coral));
+  }
+  .kit-hero .kh-emoji { font-size: 48px; margin-bottom: 12px; }
+  .kit-hero .kh-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: clamp(20px, 3.5vw, 26px);
+    font-weight: 700; margin-bottom: 8px;
+  }
+  .kit-hero .kh-sub {
+    font-size: 15px; color: var(--text-dim); line-height: 1.5;
+    max-width: 500px; margin: 0 auto 20px;
+  }
+
+  .kit-contents {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; text-align: left; margin-bottom: 20px;
+  }
+  @media (max-width: 500px) { .kit-contents { grid-template-columns: 1fr; } }
+
+  .kit-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 10px;
+    background: rgba(0,0,0,0.2); font-size: 13px; color: var(--text-dim);
+  }
+  .kit-item .ki-icon { font-size: 18px; flex-shrink: 0; }
+  .kit-item .ki-name { font-weight: 500; }
+
+  .kit-cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px; border-radius: 50px;
+    background: linear-gradient(135deg, var(--gold), #e8a33a);
+    color: var(--bg); font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px; font-weight: 700; text-decoration: none;
+    transition: all 0.3s; border: none; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.2);
+  }
+  .kit-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(255,215,0,0.3);
+  }
+  .kit-cta .cta-arrow { font-size: 18px; }
+
+  .kit-free-tag {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--green); text-transform: uppercase; letter-spacing: 2px;
+  }
+
+  /* ===== S4: TALLERES + CTA ===== */
+  .talleres-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px; max-width: 700px; width: 100%; margin-bottom: 24px;
+  }
+  @media (max-width: 650px) { .talleres-grid { grid-template-columns: 1fr; } }
+
+  .taller-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 24px; text-align: center;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.3s;
+  }
+  .taller-card:hover { transform: translateY(-3px); }
+  .taller-card:nth-child(1) { border-top: 3px solid var(--teal); }
+  .taller-card:nth-child(2) { border-top: 3px solid var(--orange); }
+  .taller-card:nth-child(3) { border-top: 3px solid var(--coral); }
+
+  .taller-card .tc-level {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+  }
+  .taller-card:nth-child(1) .tc-level { color: var(--teal); }
+  .taller-card:nth-child(2) .tc-level { color: var(--orange); }
+  .taller-card:nth-child(3) .tc-level { color: var(--coral); }
+
+  .taller-card .tc-name {
+    font-family: 'Space Grotesk', sans-serif; font-size: 18px;
+    font-weight: 600; margin-bottom: 4px;
+  }
+  .taller-card .tc-duration {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text-dimmer); margin-bottom: 10px;
+  }
+  .taller-card .tc-desc {
+    font-size: 13px; color: var(--text-dim); line-height: 1.5;
+  }
+
+  .descuento-badge {
+    max-width: 700px; width: 100%;
+    background: linear-gradient(135deg, rgba(255,215,0,0.06), rgba(255,107,107,0.06));
+    border: 1px solid rgba(255,215,0,0.15);
+    border-radius: var(--radius); padding: 20px 24px;
+    text-align: center; margin-bottom: 20px;
+  }
+  .descuento-badge .db-big {
+    font-family: 'Space Grotesk', sans-serif; font-size: 18px;
+    font-weight: 700; color: var(--gold); margin-bottom: 6px;
+  }
+  .descuento-badge .db-sub {
+    font-size: 14px; color: var(--text-dim);
+  }
+
+  .final-cta {
+    max-width: 700px; width: 100%; text-align: center;
+    margin-bottom: 16px;
+  }
+  .final-question {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 700; margin-bottom: 20px;
+    color: var(--text);
+  }
+  .final-question .hl-gold { color: var(--gold); }
+
+  .wa-button {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 32px; border-radius: 50px;
+    background: #25D366; color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px; font-weight: 700; text-decoration: none;
+    transition: all 0.3s; border: none; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.3);
+  }
+  .wa-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(37,211,102,0.4);
+  }
+  .wa-button .wa-icon { font-size: 20px; }
+
+  .contact-info {
+    margin-top: 12px; font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--text-dimmer);
+  }
+
+  .ficua-brand {
+    margin-top: 24px; text-align: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; color: var(--text-dimmer);
+  }
+  .ficua-brand strong { color: var(--gold); font-size: 16px; }
+
+  /* ===== MODULE NAV (inter-module links) ===== */
+  .module-nav {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; z-index: 100;
+    background: rgba(18,18,26,0.95); padding: 4px 8px;
+    border-radius: 50px; border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+  }
+  .module-nav a {
+    padding: 6px 12px; border-radius: 50px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+    text-decoration: none; color: var(--text-dimmer);
+    transition: all 0.3s;
+  }
+  .module-nav a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .module-nav a.current { color: var(--gold); background: rgba(255,215,0,0.08); }
+
+  /* ===== KEY HINT ===== */
+  .key-hint {
+    position: fixed; top: 16px; right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-dimmer); z-index: 100; opacity: 0.4;
+  }
+
+  /* ===== GRAIN ===== */
+  body::after {
+    content: ''; position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%; pointer-events: none; opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    z-index: 9999;
+  }
+</style>
+</head>
+<body>
+
+<!-- Module navigation -->
+<nav class="module-nav">
+  <a href="modulo1_basico.html">Básico</a>
+  <a href="modulo2_intermedio.html">Intermedio</a>
+  <a href="modulo3_avanzado.html">Avanzado</a>
+  <a href="cierre.html" class="current">Cierre</a>
+</nav>
+
+<div class="key-hint">← → para navegar</div>
+<nav class="nav" id="main-nav"></nav>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- S1: LA FRASE QUE TE LLEVAS                                     -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="slide active" id="s1">
+  <div class="slide-label">Cierre</div>
+  <h1>La frase que<br><span class="highlight">te llevas</span></h1>
+
+  <div class="quote-section">
+    <div class="big-quote">
+      <div class="bq-text">
+        "La IA no va a reemplazar tu trabajo.<br>
+        Pero un profesional que <span class="hl-gold">domina la IA</span><br>
+        va a reemplazar al que <span class="hl-coral">no</span>."
+      </div>
+    </div>
+
+    <div class="divider-glow"></div>
+
+    <div class="second-quote">
+      <div class="sq-text">
+        "Yo les mostré una <strong>probada</strong>.<br>
+        En los talleres, les enseño a <strong>cocinar</strong>."
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- S2: LO QUE LOGRASTE                                            -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="slide-label">Tu recorrido</div>
+  <h1>Lo que lograste<br>en <span class="highlight">2 horas y media</span></h1>
+
+  <div class="time-badge">
+    <span class="tb-big">2.5 hrs</span>
+    De cero a plan de acción
+  </div>
+
+  <div class="achievements-box" id="achievements">
+    <div class="achievement-item" id="ach1">
+      <div class="ai-check">✓</div>
+      <div class="ai-text"><strong>Creaste tu primer prompt profesional</strong> con el Framework ACE</div>
+    </div>
+    <div class="achievement-item" id="ach2">
+      <div class="ai-check">✓</div>
+      <div class="ai-text"><strong>Viste un agente de IA responder correos solo</strong> — automatización real</div>
+    </div>
+    <div class="achievement-item" id="ach3">
+      <div class="ai-check">✓</div>
+      <div class="ai-text"><strong>Viste una app que responde preguntas de documentos reales</strong> (RAG con Psyqui)</div>
+    </div>
+    <div class="achievement-item" id="ach4">
+      <div class="ai-check">✓</div>
+      <div class="ai-text"><strong>Tienes un plan de estudio personalizado</strong> para tu profesión</div>
+    </div>
+    <div class="achievement-item" id="ach5">
+      <div class="ai-check">✓</div>
+      <div class="ai-text"><strong>Tienes el Kit de Arranque IA completo</strong> — listo para usar el lunes</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- S3: KIT DE ARRANQUE                                            -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s3">
+  <div class="slide-label">Tu regalo</div>
+  <h1>Tu <span class="highlight">Kit de Arranque</span><br>IA para Profesionales</h1>
+  <p class="subtitle">Un template de Notion con todo lo que necesitas para empezar a usar IA en tu profesión esta misma semana.</p>
+
+  <div class="kit-hero">
+    <div class="kh-emoji">🧰</div>
+    <div class="kh-title">Kit de Arranque IA</div>
+    <div class="kh-sub">Tu base de operaciones para integrar la IA en tu trabajo diario. Incluye diagnóstico, prompts, plan de estudio y más.</div>
+
+    <div class="kit-contents">
+      <div class="kit-item">
+        <span class="ki-icon">📊</span>
+        <span class="ki-name">Diagnóstico de Automatización</span>
+      </div>
+      <div class="kit-item">
+        <span class="ki-icon">🎯</span>
+        <span class="ki-name">Biblioteca de Prompts por Profesión</span>
+      </div>
+      <div class="kit-item">
+        <span class="ki-icon">🤖</span>
+        <span class="ki-name">Agente: Mi Plan de Estudio IA</span>
+      </div>
+      <div class="kit-item">
+        <span class="ki-icon">🎁</span>
+        <span class="ki-name">Framework ACE Completo</span>
+      </div>
+      <div class="kit-item">
+        <span class="ki-icon">📈</span>
+        <span class="ki-name">Proyectos Piloto — Portafolio</span>
+      </div>
+      <div class="kit-item">
+        <span class="ki-icon">🎬</span>
+        <span class="ki-name">Prompts de Respaldo</span>
+      </div>
+    </div>
+
+    <a href="https://www.notion.so/icsadigital/Kit-de-Arranque-IA-para-Profesionales-311901087cfb8109a0c4cb8d7d0131c6" target="_blank" rel="noopener" class="kit-cta">
+      Abrir mi Kit en Notion <span class="cta-arrow">→</span>
+    </a>
+    <div class="kit-free-tag">✓ 100% Gratis • Template de Notion</div>
+  </div>
+
+  <div style="max-width:600px; width:100%; text-align:center; font-size:14px; color:var(--text-dim); line-height:1.6;">
+    <strong style="color:var(--gold)">¿Por dónde empezar?</strong> Esta semana: completa el Diagnóstico de Automatización, identifica tus 3 tareas más repetitivas, y prueba los prompts de tu profesión.
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- S4: TALLERES + CTA FINAL                                       -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s4">
+  <div class="slide-label">El siguiente paso</div>
+  <h1>Hoy diste el <span class="highlight">primer paso</span>.</h1>
+
+  <div class="talleres-grid">
+    <div class="taller-card">
+      <div class="tc-level">Taller Básico</div>
+      <div class="tc-name">Fundamentos</div>
+      <div class="tc-duration">3 meses</div>
+      <div class="tc-desc">Domina ChatGPT, Claude y Gemini. Crea prompts profesionales para cualquier tarea.</div>
+    </div>
+    <div class="taller-card">
+      <div class="tc-level">Taller Intermedio</div>
+      <div class="tc-name">Integración</div>
+      <div class="tc-duration">3 meses</div>
+      <div class="tc-desc">Marketing, agentes y ventas con IA. Automatiza procesos reales de tu negocio.</div>
+    </div>
+    <div class="taller-card">
+      <div class="tc-level">Taller Avanzado</div>
+      <div class="tc-name">Construcción</div>
+      <div class="tc-duration">3 meses</div>
+      <div class="tc-desc">Agentes autónomos, voz y multi-agente. Construye productos propios con IA.</div>
+    </div>
+  </div>
+
+  <div class="descuento-badge">
+    <div class="db-big">🎓 Los asistentes de la Master Class tienen descuento exclusivo</div>
+    <div class="db-sub">Pregunta en el WhatsApp por los precios especiales de hoy</div>
+  </div>
+
+  <div class="final-cta">
+    <div class="final-question">¿Das el <span class="hl-gold">segundo</span>?</div>
+
+    <a href="https://wa.me/523343768956?text=Hola%2C%20vine%20a%20la%20Master%20Class%20y%20me%20interesa%20saber%20m%C3%A1s%20sobre%20los%20talleres" target="_blank" rel="noopener" class="wa-button">
+      <span class="wa-icon">💬</span> Escríbenos por WhatsApp
+    </a>
+    <div class="contact-info">
+      FICUA • +52 33 4376 8956
+    </div>
+  </div>
+
+  <div class="ficua-brand">
+    <strong>FICUA</strong> — De la Curiosidad a la Creación
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                                     -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<script>
+  const TOTAL = 4;
+  let current = 1;
+
+  // Build nav
+  const nav = document.getElementById('main-nav');
+  for (let i = 1; i <= TOTAL; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.onclick = () => goSlide(i);
+    if (i === 1) btn.classList.add('active');
+    nav.appendChild(btn);
+  }
+
+  function goSlide(n) {
+    if (n < 1 || n > TOTAL) return;
+    current = n;
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('s' + n).classList.add('active');
+    document.querySelectorAll('.nav button')[n - 1].classList.add('active');
+    if (n === 2) animateAchievements();
+  }
+
+  // Keyboard nav
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || (e.key === ' ' && !e.shiftKey)) { e.preventDefault(); goSlide(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goSlide(current - 1); }
+  });
+
+  // S2: Achievement animation
+  let achDone = false;
+  function animateAchievements() {
+    if (achDone) return; achDone = true;
+    for (let i = 1; i <= 5; i++) {
+      setTimeout(() => document.getElementById('ach' + i).classList.add('visible'), i * 300);
+    }
+  }
+
+  // Observer
+  const obs = new MutationObserver(() => {
+    const active = document.querySelector('.slide.active');
+    if (active && active.id === 's2') animateAchievements();
+  });
+  document.querySelectorAll('.slide').forEach(s => obs.observe(s, { attributes: true, attributeFilter: ['class'] }));
+</script>
+
+</body>
+</html>
